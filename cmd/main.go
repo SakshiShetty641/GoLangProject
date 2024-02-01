@@ -8,5 +8,8 @@ import (
 func main() {
 	engine := gin.Default()
 	routes.RegisterRoute(engine)
-	engine.Run(":8080")
+	err := engine.Run("localhost:8080")
+	if err != nil {
+		return
+	}
 }
