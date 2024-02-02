@@ -29,7 +29,6 @@ func (h *MovieHandler) GetMoviesForRentHandler(c *gin.Context) {
 		return
 	}
 
-	// Save movies to the PostgreSQL database
 	err = h.MovieRepository.SaveMovie(movies)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
