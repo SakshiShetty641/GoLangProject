@@ -2,18 +2,16 @@ package routes
 
 import (
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/handlers"
+	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/repository"
+	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/services"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
-func RegisterRoute(engine *gin.Engine) {
-	engine.GET("/hello-world", func(context *gin.Context) {
-		context.String(http.StatusOK, "Hello World Program")
-	})
-
-}
-
-func SetMovieRoutes(router *gin.Engine, movieHandler *handlers.MovieHandler) {
-	//db.CreateConnection()
-	router.GET("/movies", movieHandler.GetMoviesForRentHandler)
+func RegisterRoutes(engine *gin.Engine) {
+	apiKey := "48c1dcb7"
+	endpoint := "https://www.omdbapi.com/"
+	movieRepository := repository.NewOMDBMovieRepository(apiKey, endpoint)
+	movieService := services.NewMovieService(movieRepository)
+	movieHandler := handlers.NewMovieHandler(movieService)
+	engine.GET("/movies", movieHandler.GetMoviesForRentHandler)
 }

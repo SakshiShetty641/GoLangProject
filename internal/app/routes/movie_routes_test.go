@@ -2,9 +2,6 @@ package routes
 
 import (
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dto"
-	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/handlers"
-	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/repository"
-	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/services"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/stretchr/testify/assert"
@@ -16,10 +13,7 @@ import (
 
 func TestGetMoviesForRent(t *testing.T) {
 	router := gin.Default()
-	movieRepository := repository.NewOMDBMovieRepository("48c1dcb7", "http://www.omdbapi.com/")
-	movieService := services.NewMovieService(movieRepository)
-	movieHandler := handlers.NewMovieHandler(movieService)
-	SetMovieRoutes(router, movieHandler)
+	RegisterRoutes(router)
 	t.Run("Success", func(t *testing.T) {
 		server := httptest.NewServer(router)
 		defer server.Close()
@@ -44,11 +38,8 @@ func TestGetMoviesForRent(t *testing.T) {
 			}
 		}))
 		defer server.Close()
-		movieRepository := repository.NewOMDBMovieRepository("48c1dcb7", "http://www.omdbapi.com/")
-		movieService := services.NewMovieService(movieRepository)
 		router := gin.Default()
-		movieHandler := handlers.NewMovieHandler(movieService)
-		SetMovieRoutes(router, movieHandler)
+		RegisterRoutes(router)
 		response, err := http.Get(server.URL + "/movies?query=error_scenario")
 		assert.NoError(t, err)
 		defer func(Body io.ReadCloser) {
