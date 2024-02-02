@@ -8,9 +8,7 @@ import (
 )
 
 func main() {
-	// Initialize Gin
 	router := gin.Default()
-
 	movieService := services.NewMovieService("48c1dcb7", "http://www.omdbapi.com/")
 	movieHandler := handlers.NewMovieHandler(movieService)
 

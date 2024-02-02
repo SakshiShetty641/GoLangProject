@@ -16,7 +16,6 @@ func NewMovieHandler(movieService *services.MovieService) *MovieHandler {
 	}
 }
 
-// GetMoviesForRentHandler handles the HTTP request to get movies for rent
 func (h *MovieHandler) GetMoviesForRentHandler(c *gin.Context) {
 	query := c.Query("query")
 

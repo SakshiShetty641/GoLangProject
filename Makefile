@@ -8,7 +8,7 @@ GORUN :=$(GOCMD) run
 
 
 build:
-    go build -o app cmd/main.go
+    go build -o bin/MovieRental.go
 
 run:
     go run cmd/main.go

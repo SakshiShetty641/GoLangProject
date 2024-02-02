@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dtos"
+	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dto"
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/handlers"
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/services"
 	"github.com/gin-gonic/gin"
@@ -25,10 +25,12 @@ func TestGetMoviesForRent(t *testing.T) {
 		assert.NoError(t, err)
 		defer response.Body.Close()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
-		var movies []dtos.MovieDTO
+		var movies []dto.Movie
 		err = json.NewDecoder(response.Body).Decode(&movies)
+
+		expectedMovie := dto.Movie{Title: "Crazy, Stupid, Love.", Year: "2011", Poster: "https://m.media-amazon.com/images/M/MV5BMTg2MjkwMTM0NF5BMl5BanBnXkFtZTcwMzc4NDg2NQ@@._V1_SX300.jpg"}
 		assert.NoError(t, err)
-		expectedMovie := dtos.MovieDTO{Title: "Crazy, Stupid, Love.", Year: "2011", Poster: "https://m.media-amazon.com/images/M/MV5BMTg2MjkwMTM0NF5BMl5BanBnXkFtZTcwMzc4NDg2NQ@@._V1_SX300.jpg"}
+		expectedMovie = dto.Movie{Title: "Crazy, Stupid, Love.", Year: "2011", Poster: "https://m.media-amazon.com/images/M/MV5BMTg2MjkwMTM0NF5BMl5BanBnXkFtZTcwMzc4NDg2NQ@@._V1_SX300.jpg"}
 		assert.Equal(t, expectedMovie, movies[0])
 	})
 	t.Run("Error", func(t *testing.T) {

@@ -1,20 +1,18 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dtos"
+	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dto"
+	"github.com/goccy/go-json"
 	"io/ioutil"
 	"net/http"
 )
 
-// MovieService handles movie-related operations
 type MovieService struct {
 	APIKey   string
 	Endpoint string
 }
 
-// NewMovieService creates a new MovieService instance
 func NewMovieService(apiKey, endpoint string) *MovieService {
 	return &MovieService{
 		APIKey:   apiKey,
@@ -22,9 +20,11 @@ func NewMovieService(apiKey, endpoint string) *MovieService {
 	}
 }
 
-// GetMoviesForRent retrieves movies based on a query
-func (s *MovieService) GetMoviesForRent(query string) ([]dtos.MovieDTO, error) {
+func (s *MovieService) GetMoviesForRent(query string) ([]dto.Movie, error) {
 	url := fmt.Sprintf("%s?apikey=%s&s=%s", s.Endpoint, s.APIKey, query)
+
+	//url := fmt.Sprintf("%s?t=%s&apikey=%s", s.Endpoint, query, s.APIKey)
+
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP request failed: %v", err)
@@ -45,21 +45,19 @@ func (s *MovieService) GetMoviesForRent(query string) ([]dtos.MovieDTO, error) {
 		return nil, fmt.Errorf("Error decoding JSON response: %v", err)
 	}
 
-	// Extract the "Search" array from the JSON response
 	searchArray, ok := jsonResponse["Search"].([]interface{})
 	if !ok {
 		return nil, fmt.Errorf("Expected 'Search' array in JSON response")
 	}
 
-	// Unmarshal each movie in the "Search" array
-	var result []dtos.MovieDTO
+	var result []dto.Movie
 	for _, movieData := range searchArray {
 		movieBytes, err := json.Marshal(movieData)
 		if err != nil {
 			return nil, fmt.Errorf("Error encoding movie data: %v", err)
 		}
 
-		var movie dtos.MovieDTO
+		var movie dto.Movie
 		if err := json.Unmarshal(movieBytes, &movie); err != nil {
 			return nil, fmt.Errorf("Error decoding movie data: %v", err)
 		}

@@ -1,6 +1,6 @@
-package dtos
+package dto
 
-type MovieDTO struct {
+type Movie struct {
 	Title  string `json:"title"`
 	Year   string `json:"year"`
 	Poster string `json:"poster"`
