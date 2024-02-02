@@ -1,71 +1,81 @@
 package repository
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dto"
-	"io/ioutil"
-	"net/http"
+	"github.com/goccy/go-json"
+	"log"
+	"time"
 )
 
-type MovieRepository interface {
-	GetMoviesForRent(query string) ([]dto.Movie, error)
+// MovieRepository handles movie-related database operations
+type MovieRepository struct {
+	db *sql.DB
 }
 
-type OMDBMovieRepository struct {
-	APIKey   string
-	Endpoint string
-}
-
-func NewOMDBMovieRepository(apiKey, endpoint string) *OMDBMovieRepository {
-	return &OMDBMovieRepository{
-		APIKey:   apiKey,
-		Endpoint: endpoint,
+// NewMovieRepository creates a new MovieRepository instance
+func NewMovieRepository(db *sql.DB) *MovieRepository {
+	return &MovieRepository{
+		db: db,
 	}
 }
 
-func (r *OMDBMovieRepository) GetMoviesForRent(query string) ([]dto.Movie, error) {
-	url := fmt.Sprintf("%s?apikey=%s&s=%s", r.Endpoint, r.APIKey, query)
+// CreateMovie inserts a new movie into the database
+func (r *MovieRepository) SaveMovie(movie dto.Movie) error {
+	query := `
+        INSERT INTO movies (
+            title, year, rated, released, runtime, genre, director, writer, actors, plot,
+            language, country, awards, poster, ratings, metascore, imdb_rating, imdb_votes,
+            imdb_id, type, dvd, box_office, production, website, response, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        RETURNING id
+    `
 
-	response, err := http.Get(url)
+	// Convert JSONB data to PostgreSQL JSONB format
+	ratingsJSONB, err := json.Marshal(movie.Ratings)
 	if err != nil {
-		return nil, fmt.Errorf("HTTP request failed: %v", err)
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Unexpected status code: %d", response.StatusCode)
+		return fmt.Errorf("failed to marshal ratings to JSONB: %v", err)
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	// Execute the SQL query
+	err = r.db.QueryRow(
+		query,
+		movie.Title, movie.Year, movie.Rated, movie.Released, movie.Runtime, movie.Genre,
+		movie.Director, movie.Writer, movie.Actors, movie.Plot, movie.Language, movie.Country,
+		movie.Awards, movie.Poster, ratingsJSONB, movie.Metascore, movie.ImdbRating, &movie.Id, &movie.ImdbID, movie.ImdbVotes,
+		movie.Type, movie.DVD, movie.BoxOffice, movie.Production, movie.Website,
+		movie.Response, time.Now(), time.Now(),
+	).Scan(movie.Id)
+
 	if err != nil {
-		return nil, fmt.Errorf("Error reading response body: %v", err)
+		return fmt.Errorf("failed to execute SQL query: %v", err)
 	}
 
-	var jsonResponse map[string]interface{}
-	if err := json.Unmarshal(body, &jsonResponse); err != nil {
-		return nil, fmt.Errorf("Error decoding JSON response: %v", err)
+	return nil
+}
+
+// GetMovies returns a list of all movies from the database
+func (r *MovieRepository) GetMovies() ([]dto.Movie, error) {
+	query := "SELECT * FROM movies"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute SQL query: %v", err)
 	}
+	defer rows.Close()
 
-	searchArray, ok := jsonResponse["Search"].([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("Expected 'Search' array in JSON response")
-	}
-
-	var result []dto.Movie
-	for _, movieData := range searchArray {
-		movieBytes, err := json.Marshal(movieData)
-		if err != nil {
-			return nil, fmt.Errorf("Error encoding movie data: %v", err)
-		}
-
+	for rows.Next() {
 		var movie dto.Movie
-		if err := json.Unmarshal(movieBytes, &movie); err != nil {
-			return nil, fmt.Errorf("Error decoding movie data: %v", err)
+		// Scan row data into MovieDTO fields
+		if err := rows.Scan(
+			&movie.Title, &movie.Year, &movie.Rated, &movie.Released, &movie.Runtime,
+			&movie.Genre, &movie.Director, &movie.Writer, &movie.Actors, &movie.Plot,
+			&movie.Language, &movie.Country, &movie.Awards, &movie.Poster, &movie.Ratings,
+			&movie.Metascore, &movie.ImdbRating, &movie.ImdbVotes, &movie.ImdbID, &movie.Type,
+			&movie.DVD, &movie.BoxOffice, &movie.Production, &movie.Id, &movie.Website, &movie.Response); err != nil {
+			log.Println("Error scanning row:", err)
+			return nil, err
 		}
-
-		result = append(result, movie)
 	}
-
-	return result, nil
+	return nil, nil
 }
