@@ -14,5 +14,6 @@ func RegisterRoute(engine *gin.Engine) {
 }
 
 func SetMovieRoutes(router *gin.Engine, movieHandler *handlers.MovieHandler) {
+	//db.CreateConnection()
 	router.GET("/movies", movieHandler.GetMoviesForRentHandler)
 }
