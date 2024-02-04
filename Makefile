@@ -1,20 +1,18 @@
-#Go Parameters
-
-GOCMD :=go
-GOBUILD :=$(GOCMD) build
-GOCLEAN :=$(GOCMD) clean
-GOTEST :=$(GOCMD) test
-GORUN :=$(GOCMD) run
-
+GOCMD := go
+GOBUILD := $(GOCMD) build
+GOCLEAN := $(GOCMD) clean
+GOTEST := $(GOCMD) test
+GORUN := $(GOCMD) run
 
 build:
-    go build -o bin/MovieRental.go
+	$(GOBUILD) -o bin/MovieRental
 
 run:
-    go run cmd/main.go
+	$(GORUN) cmd/main.go
 
 test:
-    go test ./tests/...
+	$(GOTEST) ./tests/...
 
 clean:
-    rm -f app
+	$(GOCLEAN)
+	rm -f bin/MovieRental
