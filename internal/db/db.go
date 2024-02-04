@@ -21,7 +21,7 @@ type Config struct {
 }
 
 func CreateConnection() *sql.DB {
-	configFile, err := ioutil.ReadFile("config/config.yaml")
+	configFile, err := ioutil.ReadFile("/Users/sakshishetty/Desktop/Go/GoLangProject/config/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
