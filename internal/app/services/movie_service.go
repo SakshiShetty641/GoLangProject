@@ -53,6 +53,6 @@ func (s *MovieService) GetMoviesForRent(query string) (dto.Movie, error) {
 
 }
 
-func (s *MovieService) GetFilteredMovies(genres []string, actors []string, years []string) ([]dto.Movie, error) {
-	return s.MovieRepository.GetFilteredMovies(genres, actors, years)
+func (s *MovieService) GetFilteredMovies(genre, actor, year string) ([]dto.Movie, error) {
+	return s.MovieRepository.GetFilteredMovies(genre, actor, year)
 }

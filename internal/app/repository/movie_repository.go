@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dto"
-	"github.com/lib/pq"
 	"time"
 )
 
@@ -30,8 +29,6 @@ func (r *MovieRepository) SaveMovie(movie dto.Movie) error {
         RETURNING id
     `
 
-	// Convert JSONB data to PostgreSQL JSONB format
-
 	// Execute the SQL query
 	err := r.db.QueryRow(
 		query,
@@ -50,24 +47,13 @@ func (r *MovieRepository) SaveMovie(movie dto.Movie) error {
 
 }
 
-func (r *MovieRepository) GetFilteredMovies(genres []string, actors []string, years []string) ([]dto.Movie, error) {
-	// Implement logic to fetch movies from the database based on the provided criteria
-	// Adjust the SQL query accordingly to filter by genre, actor, and year
-	query := `
-                 SELECT * FROM movies
-        WHERE
-            (ARRAY[$1] <@ string_to_array(genre, ','))
-            AND (ARRAY[$2] <@ string_to_array(actors, ','))
-            AND ($3 = '{}' OR year IN ($3))
-    
-    `
-	fmt.Println("Generated SQL Query:", query)
+func (r *MovieRepository) GetFilteredMovies(genre, actor, year string) ([]dto.Movie, error) {
 
-	rows, err := r.db.Query(query,
-		pq.Array(genres),
-		pq.Array(actors),
-		pq.Array(years),
-	)
+	query := `
+        SELECT * FROM movies where (genre =$1) AND (actors=$2) AND (year=$3)
+    `
+
+	rows, err := r.db.Query(query, sql.Named("genre", genre), sql.Named("actors", actor), sql.Named("year", year))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute SQL query: %v", err)
@@ -85,7 +71,7 @@ func (r *MovieRepository) GetFilteredMovies(genres []string, actors []string, ye
 			&movie.Writer, &movie.Actors, &movie.Plot, &movie.Language, &movie.Country,
 			&movie.Awards, &movie.Poster, &movie.Metascore, &movie.ImdbRating, &movie.ImdbVotes,
 			&movie.ImdbID, &movie.Type, &movie.BoxOffice,
-			&movie.Response, time.Now(), time.Now(),
+			&movie.Response, &movie.CreatedAt, &movie.UpdatedAt,
 		); err != nil {
 			fmt.Println("Error in db query after scan", err)
 			return nil, fmt.Errorf("failed to scan row: %v", err)
@@ -97,28 +83,3 @@ func (r *MovieRepository) GetFilteredMovies(genres []string, actors []string, ye
 
 	return movies, nil
 }
-
-////GetMovies returns a list of all movies from the database
-//func (r *MovieRepository) GetMovies() ([]dto.Movie, error) {
-//	query := "SELECT * FROM movies"go get github.com/lib/pq
-//	rows, err := r.db.Query(query)
-//	if err != nil {
-//		return nil, fmt.Errorf("failed to execute SQL query: %v", err)
-//	}
-//	defer rows.Close()
-//
-//	for rows.Next() {
-//		var movie dto.Movie
-//		// Scan row data into MovieDTO fields
-//		if err := rows.Scan(
-//			&movie.Title, &movie.Year, &movie.Rated, &movie.Released, &movie.Runtime,
-//			&movie.Genre, &movie.Director, &movie.Writer, &movie.Actors, &movie.Plot,
-//			&movie.Language, &movie.Country, &movie.Awards, &movie.Poster, &movie.Ratings,
-//			&movie.Metascore, &movie.ImdbRating, &movie.ImdbVotes, &movie.ImdbID, &movie.Type,
-//			&movie.DVD, &movie.BoxOffice, &movie.Production, &movie.Id, &movie.Website, &movie.Response); err != nil {
-//			log.Println("Error scanning row:", err)
-//			return nil, err
-//		}
-//	}
-//	return nil, nil
-//}
