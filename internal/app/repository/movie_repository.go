@@ -83,3 +83,16 @@ func (r *MovieRepository) GetFilteredMovies(genre, actor, year string) ([]dto.Mo
 
 	return movies, nil
 }
+
+func (r *MovieRepository) GetMovieDetailsByTitle(title string) (dto.Movie, error) {
+	query := `SELECT * FROM movies WHERE title = $1`
+
+	var movie dto.Movie
+	err := r.db.QueryRow(query, title).Scan(
+		&movie.Id, &movie.Title, &movie.Year, &movie.Rated, &movie.Released, &movie.Runtime, &movie.Genre,
+	)
+	if err != nil {
+		return dto.Movie{}, err
+	}
+	return movie, nil
+}

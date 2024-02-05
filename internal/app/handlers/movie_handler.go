@@ -44,3 +44,16 @@ func (h *MovieHandler) GetFilteredMovies(c *gin.Context) {
 
 	c.JSON(http.StatusOK, movies)
 }
+
+// Story 4
+func (h *MovieHandler) GetMovieDetailsByTitle(c *gin.Context) {
+	title := c.Query("title")
+
+	movie, err := h.MovieService.GetMovieDetailsByTitle(title)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, movie)
+}

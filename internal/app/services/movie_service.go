@@ -56,3 +56,12 @@ func (s *MovieService) GetMoviesForRent(query string) (dto.Movie, error) {
 func (s *MovieService) GetFilteredMovies(genre, actor, year string) ([]dto.Movie, error) {
 	return s.MovieRepository.GetFilteredMovies(genre, actor, year)
 }
+
+func (s *MovieService) GetMovieDetailsByTitle(title string) (dto.Movie, error) {
+	
+	movie, err := s.MovieRepository.GetMovieDetailsByTitle(title)
+	if err != nil {
+		return dto.Movie{}, err
+	}
+	return movie, nil
+}
