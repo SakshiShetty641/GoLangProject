@@ -90,6 +90,10 @@ func (r *MovieRepository) GetMovieDetailsByTitle(title string) (dto.Movie, error
 	var movie dto.Movie
 	err := r.db.QueryRow(query, title).Scan(
 		&movie.Id, &movie.Title, &movie.Year, &movie.Rated, &movie.Released, &movie.Runtime, &movie.Genre,
+		&movie.Writer, &movie.Actors, &movie.Plot, &movie.Language, &movie.Country,
+		&movie.Awards, &movie.Poster, &movie.Metascore, &movie.ImdbRating, &movie.ImdbVotes,
+		&movie.ImdbID, &movie.Type, &movie.BoxOffice,
+		&movie.Response, &movie.CreatedAt, &movie.UpdatedAt,
 	)
 	if err != nil {
 		return dto.Movie{}, err
