@@ -13,7 +13,12 @@ func RegisterRoutes(engine *gin.Engine) {
 	endpoint := "https://www.omdbapi.com/"
 	dbConn := db.CreateConnection()
 	movieRepository := repository.NewMovieRepository(dbConn)
-	movieService := services.NewMovieService(apiKey, endpoint)
+	movieService := services.NewMovieService(apiKey, endpoint, movieRepository)
 	movieHandler := handlers.NewMovieHandler(movieService, movieRepository)
-	engine.GET("/movies", movieHandler.GetMoviesForRentHandler)
+	group := engine.Group("/api/v1")
+	{
+		group.GET("/movies", movieHandler.GetAllMovies)
+		group.GET("/movies/filteredMovies", movieHandler.GetFilteredMovies)
+	}
+
 }

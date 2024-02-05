@@ -5,20 +5,23 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/dto"
+	"github.com/Sakshi1997/GOLANGPROJECT/internal/app/repository"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 type MovieService struct {
-	APIKey   string
-	Endpoint string
+	APIKey          string
+	Endpoint        string
+	MovieRepository *repository.MovieRepository
 }
 
-func NewMovieService(apiKey, endpoint string) *MovieService {
+func NewMovieService(apiKey, endpoint string, movieRepository *repository.MovieRepository) *MovieService {
 	return &MovieService{
-		APIKey:   apiKey,
-		Endpoint: endpoint,
+		APIKey:          apiKey,
+		Endpoint:        endpoint,
+		MovieRepository: movieRepository,
 	}
 }
 
@@ -48,4 +51,8 @@ func (s *MovieService) GetMoviesForRent(query string) (dto.Movie, error) {
 
 	return movie, nil
 
+}
+
+func (s *MovieService) GetFilteredMovies(genres []string, actors []string, years []string) ([]dto.Movie, error) {
+	return s.MovieRepository.GetFilteredMovies(genres, actors, years)
 }
