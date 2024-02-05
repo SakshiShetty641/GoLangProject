@@ -27,7 +27,7 @@ func (h *MovieHandler) GetAllMovies(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch movies: " + err.Error()})
 		return
 	}
-
+	err = h.MovieRepository.SaveMovie(movie)
 	c.JSON(http.StatusOK, movie)
 }
 
